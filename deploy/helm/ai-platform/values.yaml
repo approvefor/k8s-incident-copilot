@@ -1,0 +1,117 @@
+global:
+  imageRegistry: ghcr.io
+  imagePullPolicy: IfNotPresent
+
+api:
+  replicaCount: 2
+  image:
+    repository: example/ai-sre-copilot-api
+    tag: latest
+  port: 8000
+  qdrantUrlOverride: ""
+  env:
+    QDRANT_COLLECTION: devops_logs
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger-collector.observability:4317
+    EMBEDDING_PROVIDER: local_hash
+  openai:
+    enabled: false
+    existingSecret: ai-platform-secrets
+    apiKeySecretKey: OPENAI_API_KEY
+  audit:
+    existingSecret: ""
+    databaseUrlSecretKey: database-url
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+worker:
+  replicaCount: 1
+  image:
+    repository: example/ai-sre-copilot-worker
+    tag: latest
+  env:
+    INTERVAL_SECONDS: "5"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+ingress:
+  enabled: false
+  className: nginx
+  host: ai-platform.local
+  tlsSecretName: ai-platform-tls
+  certManagerIssuer: letsencrypt-prod
+
+networkPolicy:
+  enabled: true
+  observabilityNamespace: observability
+  otlpPort: 4317
+  allowExternalHttps: false
+
+postgresql:
+  enabled: true
+  auth:
+    username: logs
+    database: logs
+    # Demo-only default for the bundled chart dependency. Use
+    # postgresql.auth.existingSecret or api.audit.existingSecret in production.
+    password: change-me-via-external-secret
+    existingSecret: ""
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+
+qdrant:
+  enabled: true
+
+minio:
+  enabled: true
+  auth:
+    rootUser: minio
+    # Demo-only default for local Helm installs. Use an existing secret in production.
+    rootPassword: change-me-local-only
+    existingSecret: ""

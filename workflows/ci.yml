@@ -1,0 +1,10 @@
+# Mirror of .github/workflows/ci.yml for portfolio readers browsing the repo.
+name: DevOps CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-build-scan-deploy:
+    uses: ./.github/workflows/ci.yml

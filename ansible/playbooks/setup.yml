@@ -1,0 +1,40 @@
+---
+- name: Bootstrap AI platform node
+  hosts: web
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Install base packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - python3-pip
+        state: present
+        update_cache: true
+
+    - name: Install container runtime
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+
+    - name: Enable containerd
+      ansible.builtin.service:
+        name: containerd
+        state: started
+        enabled: true
+
+    - name: Install k3s
+      ansible.builtin.shell:
+        cmd: curl -sfL https://get.k3s.io | sh -
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for Kubernetes API
+      ansible.builtin.command: k3s kubectl get nodes
+      register: k3s_nodes
+      retries: 10
+      delay: 6
+      until: k3s_nodes.rc == 0
+      changed_when: false

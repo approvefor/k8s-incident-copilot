@@ -1,0 +1,15 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 15.5.38
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 19.6.4
+- name: qdrant
+  repository: https://qdrant.github.io/qdrant-helm
+  version: 1.12.1
+- name: minio
+  repository: https://charts.bitnami.com/bitnami
+  version: 14.8.5
+digest: sha256:f1d88845ac26a596c55e24c2f3fc724942c57d597d2e5ab16a2dd3590db2b942
+generated: "2026-05-13T09:03:36.539640717Z"

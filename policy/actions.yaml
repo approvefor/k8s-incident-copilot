@@ -1,0 +1,58 @@
+allowed_actions:
+  rollout_status:
+    description: Read-only rollout health check.
+    requires_approval: false
+    namespaces:
+      - ai-platform
+    target_patterns:
+      - "*"
+  scale_deployment:
+    description: Temporarily scale a deployment during an incident.
+    requires_approval: true
+    namespaces:
+      - ai-platform
+    target_patterns:
+      - api
+      - ai-platform-ai-platform-api
+      - worker
+      - ai-platform-ai-platform-worker
+      - checkout
+      - payments
+      - inventory
+      - gateway
+  rollback_deployment:
+    description: Roll back a deployment after human approval.
+    requires_approval: true
+    namespaces:
+      - ai-platform
+    target_patterns:
+      - api
+      - ai-platform-ai-platform-api
+      - worker
+      - ai-platform-ai-platform-worker
+      - checkout
+      - payments
+      - inventory
+      - gateway
+  restart_deployment:
+    description: Restart a deployment as a last-resort recovery action.
+    requires_approval: true
+    namespaces:
+      - ai-platform
+    target_patterns:
+      - api
+      - ai-platform-ai-platform-api
+      - worker
+      - ai-platform-ai-platform-worker
+      - checkout
+      - payments
+      - inventory
+      - gateway
+
+denied_actions:
+  - delete_namespace
+  - delete_secret
+  - get_secret
+  - exec_shell
+  - apply_raw_manifest
+  - delete_persistent_volume

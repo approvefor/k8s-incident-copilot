@@ -1,0 +1,36 @@
+global:
+  imageRegistry: ghcr.io
+  imagePullPolicy: IfNotPresent
+
+api:
+  image:
+    repository: your-org/ai-sre-copilot-api
+    tag: v0.1.0
+  audit:
+    existingSecret: ai-platform-secrets
+    databaseUrlSecretKey: database-url
+  openai:
+    enabled: true
+    existingSecret: ai-platform-secrets
+    apiKeySecretKey: OPENAI_API_KEY
+  env:
+    QDRANT_COLLECTION: devops_logs_openai_1536
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger-collector.observability:4317
+
+worker:
+  image:
+    repository: your-org/ai-sre-copilot-worker
+    tag: v0.1.0
+
+networkPolicy:
+  enabled: true
+  allowExternalHttps: true
+  observabilityNamespace: observability
+  otlpPort: 4317
+
+postgresql:
+  enabled: false
+
+minio:
+  auth:
+    existingSecret: ai-platform-secrets

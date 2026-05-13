@@ -1,0 +1,8 @@
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+*.pyc
+*.tfstate
+*.tfstate.*
+deploy/helm/*/charts/

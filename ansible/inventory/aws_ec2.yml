@@ -1,0 +1,7 @@
+all:
+  children:
+    web:
+      hosts:
+        ai-platform-node:
+          ansible_host: "<public_ip_from_terraform>"
+          ansible_user: ubuntu
