@@ -21,6 +21,16 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- printf "http://%s-api:%v" (include "ai-platform.fullname" .) .Values.api.port -}}
 {{- end -}}
 
+{{- define "ai-platform.image" -}}
+{{- $registry := .registry -}}
+{{- $repository := .image.repository -}}
+{{- if .image.digest -}}
+{{- printf "%s/%s@%s" $registry $repository .image.digest -}}
+{{- else -}}
+{{- printf "%s/%s:%s" $registry $repository .image.tag -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "ai-platform.qdrantUrl" -}}
 {{- printf "http://%s-qdrant:6333" .Release.Name -}}
 {{- end -}}

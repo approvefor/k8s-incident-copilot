@@ -34,10 +34,14 @@ Core workflow:
 - health/readiness checks, resources, HPA, PDB, NetworkPolicy
 - non-root containers and restricted security contexts
 - Prometheus metrics, Grafana dashboard, Loki/Jaeger-ready observability
-- GitHub Actions build, test, scan, image push, Helm validation, and deploy
+- GitHub Actions build, test, scan, SBOM, Cosign signing, image push, Helm validation, and deploy
+- Kyverno admission policy examples for runtime and supply-chain hardening
 - eval cases for AI safety and quality expectations
 
 ## Architecture
+
+Detailed tradeoffs and design rationale are documented in
+[ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```mermaid
 flowchart LR
@@ -107,6 +111,24 @@ or:
 For an interview-friendly walkthrough without running the stack, see
 [docs/demo-transcript.md](docs/demo-transcript.md).
 
+Smoke test after the stack is running:
+
+```bash
+make smoke
+```
+
+Expected smoke output is documented in [docs/demo-output.md](docs/demo-output.md).
+
+Interview path:
+
+```bash
+make test
+make evals
+make compose-up
+make smoke
+./scripts/demo.sh
+```
+
 Manual startup:
 
 ```bash
@@ -153,6 +175,9 @@ Denied examples:
 - `delete_persistent_volume`
 
 State-changing actions require `approved: true`, but this API is intentionally dry-run-only. A production deployment should delegate real execution to a separate restricted action-runner with scoped Kubernetes RBAC.
+
+Admission-control examples live in
+[deploy/security/kyverno-policies.yaml](deploy/security/kyverno-policies.yaml).
 
 ## Embeddings
 
@@ -223,6 +248,9 @@ helm upgrade --install ai-platform deploy/helm/ai-platform \
   --create-namespace \
   -f deploy/helm/ai-platform/values-production.yaml
 ```
+
+Production values use SHA-style image tag placeholders and support digest-pinned
+immutable images through `api.image.digest` and `worker.image.digest`.
 
 ## Evals
 

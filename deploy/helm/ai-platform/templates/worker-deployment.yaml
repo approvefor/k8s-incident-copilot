@@ -23,7 +23,7 @@ spec:
         {{- toYaml .Values.worker.podSecurityContext | nindent 8 }}
       containers:
         - name: worker
-          image: "{{ .Values.global.imageRegistry }}/{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag }}"
+          image: {{ include "ai-platform.image" (dict "registry" .Values.global.imageRegistry "image" .Values.worker.image) | quote }}
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
           securityContext:
             {{- toYaml .Values.worker.containerSecurityContext | nindent 12 }}

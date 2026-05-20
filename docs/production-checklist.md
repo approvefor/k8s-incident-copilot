@@ -27,6 +27,11 @@ Use this before publishing the project or demoing a production-style deployment.
 - External HTTPS egress is disabled by default and enabled only for OpenAI mode.
 - Production audit uses a persistent database URL from a secret.
 - Production MinIO credentials come from `ai-platform-secrets`.
+- CI publishes SBOM artifacts for pushed images.
+- CI signs pushed container images with keyless Cosign.
+- Kyverno examples document admission checks for non-root pods, read-only
+  filesystems, resource limits, and digest-pinned images.
+- Production clusters should add Cosign signature verification at admission time.
 
 ## AI Safety
 
@@ -34,6 +39,12 @@ Use this before publishing the project or demoing a production-style deployment.
 - Evals cover denied dangerous actions.
 - Runbook citations are returned in incident reports.
 - Policy denies secret access, namespace deletion, raw manifest apply, and arbitrary shell.
+
+## Demo Readiness
+
+- `make smoke` passes against a running local stack.
+- `docs/demo-output.md` shows the expected smoke-test output.
+- `docs/demo-transcript.md` explains the incident story without requiring the stack.
 
 ## Observability
 

@@ -6,5 +6,5 @@ on:
   pull_request:
 
 jobs:
-  test-build-scan-deploy:
+  test-build-sbom-sign-scan-deploy:
     uses: ./.github/workflows/ci.yml

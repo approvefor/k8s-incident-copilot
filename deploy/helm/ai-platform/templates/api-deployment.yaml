@@ -27,7 +27,7 @@ spec:
         {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
       containers:
         - name: api
-          image: "{{ .Values.global.imageRegistry }}/{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          image: {{ include "ai-platform.image" (dict "registry" .Values.global.imageRegistry "image" .Values.api.image) | quote }}
           imagePullPolicy: {{ .Values.global.imagePullPolicy }}
           securityContext:
             {{- toYaml .Values.api.containerSecurityContext | nindent 12 }}

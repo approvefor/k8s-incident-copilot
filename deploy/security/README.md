@@ -8,7 +8,10 @@ This MVP includes Kubernetes security primitives and documents the production pa
 - Runtime hardening: run containers as a non-root user, drop Linux capabilities, disable privilege escalation, and use the runtime default seccomp profile.
 - TLS: terminate HTTPS through NGINX Ingress and cert-manager.
 - WAF: put Cloudflare, AWS WAF, or another edge WAF in front of public endpoints.
-- Supply chain: CI runs Trivy scans and should publish SBOMs for release builds.
+- Supply chain: CI runs Trivy scans, publishes SBOM artifacts for pushed images,
+  and signs container images with keyless Cosign.
+- Admission control: `kyverno-policies.yaml` documents runtime hardening and
+  digest-pinned immutable image checks for the API and worker pods.
 
 OpenAI embeddings in Kubernetes require `OPENAI_API_KEY` in `ai-platform-secrets` and `networkPolicy.allowExternalHttps=true`.
 
@@ -19,5 +22,7 @@ Production hardening checklist:
 - pin image tags by digest
 - enable admission policies
 - sign images with Cosign
+- enforce Cosign signature verification with Kyverno or another admission controller
+- publish and retain SBOMs for each release image
 - store audit logs centrally
 - rotate credentials
