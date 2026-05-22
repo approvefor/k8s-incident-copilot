@@ -1,8 +1,10 @@
 __pycache__/
 .pytest_cache/
 .venv/
+.tools/
 .env
 *.pyc
 *.tfstate
 *.tfstate.*
+.terraform/
 deploy/helm/*/charts/

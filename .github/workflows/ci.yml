@@ -28,10 +28,10 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run unit tests
-        run: pytest -q
+        run: PYTHONPATH=. pytest -q
 
       - name: Run AI safety evals
-        run: python scripts/run-evals.py
+        run: PYTHONPATH=. python scripts/run-evals.py
 
   build:
     name: Build Images

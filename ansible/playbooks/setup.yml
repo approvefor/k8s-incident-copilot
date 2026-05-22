@@ -26,9 +26,15 @@
         state: started
         enabled: true
 
+    - name: Download k3s installer
+      ansible.builtin.get_url:
+        url: https://get.k3s.io
+        dest: /tmp/install-k3s.sh
+        mode: "0755"
+
     - name: Install k3s
-      ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | sh -
+      ansible.builtin.command:
+        cmd: /tmp/install-k3s.sh
         creates: /usr/local/bin/k3s
 
     - name: Wait for Kubernetes API
