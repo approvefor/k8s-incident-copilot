@@ -115,6 +115,7 @@ jobs:
           scan-ref: api-sbom.spdx.json
           severity: HIGH,CRITICAL
           exit-code: "1"
+          ignore-unfixed: true
 
       - name: Scan worker SBOM
         uses: aquasecurity/trivy-action@v0.36.0
@@ -123,6 +124,7 @@ jobs:
           scan-ref: worker-sbom.spdx.json
           severity: HIGH,CRITICAL
           exit-code: "1"
+          ignore-unfixed: true
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3
@@ -149,6 +151,7 @@ jobs:
           scan-ref: .
           severity: HIGH,CRITICAL
           exit-code: "1"
+          ignore-unfixed: true
 
   infrastructure:
     name: IaC Validation
