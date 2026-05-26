@@ -6,7 +6,7 @@ PYTHON ?= $(or $(VENV_PYTHON),$(SYSTEM_PYTHON))
 PYTHON_VENV_PACKAGE ?= $(shell $(SYSTEM_PYTHON) -c 'import sys; print(f"python{sys.version_info.major}.{sys.version_info.minor}-venv")' 2>/dev/null)
 PIP_FLAGS ?= --disable-pip-version-check --no-cache-dir
 
-.PHONY: check-python check-system-python check-test-deps check-compose check-helm setup test evals verify compose-up compose-logs compose-down demo smoke helm-deps helm-lint helm-template helm-lint-prod helm-template-prod
+.PHONY: check-python check-system-python check-test-deps check-compose check-helm setup test evals verify compose-up compose-logs compose-down compose-reset demo smoke helm-deps helm-lint helm-template helm-lint-prod helm-template-prod
 
 check-python:
 	@if [ -z "$(PYTHON)" ]; then \
@@ -62,6 +62,9 @@ compose-logs: check-compose
 
 compose-down: check-compose
 	$(COMPOSE) down
+
+compose-reset: check-compose
+	$(COMPOSE) down -v --remove-orphans
 
 demo:
 	./scripts/demo.sh

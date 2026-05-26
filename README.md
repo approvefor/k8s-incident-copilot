@@ -1,12 +1,31 @@
 # AI SRE Copilot for Kubernetes Incidents
 
+[![CI](https://github.com/approvefor/k8s-incident-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/approvefor/k8s-incident-copilot/actions/workflows/ci.yml)
+![Security Scan](https://img.shields.io/badge/security-Trivy%20%7C%20SBOM%20%7C%20Cosign-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Python](https://img.shields.io/badge/python-3.12+-blue)
+
 **Kubernetes | Helm | FastAPI | Qdrant | OpenTelemetry | Policy-as-Code | Human Approval | Postgres Audit | AI Evals**
 
 Production-grade DevOps pet project that demonstrates how a DevOps/SRE engineer can use AI safely inside an incident workflow.
 
 This is not a chatbot wrapper. It is an AI-assisted SRE platform that correlates logs, runbooks, Kubernetes context, metrics-style signals, policy guardrails, approvals, audit trail, CI/CD, Helm, and observability.
 
-## Why It Hooks
+## Table of Contents
+
+- [Overview](#overview)
+- [What It Does](#what-it-does)
+- [Skills Demonstrated](#skills-demonstrated)
+- [Architecture](#architecture)
+- [Local Demo](#local-demo)
+- [Demo Output](#demo-output)
+- [Guardrails](#guardrails)
+- [Evals](#evals)
+- [Production Checklist](#production-checklist)
+- [Repository Layout](#repository-layout)
+- [Interview Positioning](#interview-positioning)
+
+## Overview
 
 The demo shows an AI copilot diagnosing a Kubernetes-style incident, citing runbooks, proposing remediation, getting blocked from secret access, and writing everything to an audit trail.
 
@@ -119,6 +138,10 @@ make smoke
 
 Expected smoke output is documented in [docs/demo-output.md](docs/demo-output.md).
 
+## Demo Output
+
+![Demo smoke-test output](docs/demo-screenshot.png)
+
 Interview path:
 
 ```bash
@@ -134,6 +157,14 @@ Manual startup:
 ```bash
 cp .env.example .env
 make compose-up
+```
+
+If local Qdrant/Postgres demo data gets stale or corrupted between runs:
+
+```bash
+make compose-reset
+make compose-up
+make smoke
 ```
 
 WSL/Unix shortcuts:

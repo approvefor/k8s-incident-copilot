@@ -2,50 +2,54 @@
 set -eu
 
 BASE_URL="${API_URL:-http://localhost:8000}"
+PYTHON_BIN="${PYTHON:-}"
 
-step() {
-  printf "\n==> %s\n" "$1"
+if [ -z "$PYTHON_BIN" ]; then
+  if [ -x ".venv/bin/python" ]; then
+    PYTHON_BIN=".venv/bin/python"
+  elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+  else
+    PYTHON_BIN="python"
+  fi
+fi
+
+can_reach_api() {
+  API_URL="$BASE_URL" "$PYTHON_BIN" - <<'PY' >/dev/null 2>&1
+import os
+import urllib.request
+
+base_url = os.environ["API_URL"]
+urllib.request.urlopen(f"{base_url}/healthz", timeout=3).read()
+PY
 }
 
-post_json() {
-  path="$1"
-  body="$2"
-  curl -fsS -X POST "$BASE_URL$path" \
-    -H "Content-Type: application/json" \
-    -d "$body"
+docker_fallback() {
+  if [ "${SMOKE_DOCKER_FALLBACK:-1}" != "1" ] || ! command -v docker >/dev/null 2>&1; then
+    return 1
+  fi
+
+  if docker compose version >/dev/null 2>&1; then
+    API_CONTAINER="$(docker compose ps -q api 2>/dev/null || true)"
+  elif command -v docker-compose >/dev/null 2>&1; then
+    API_CONTAINER="$(docker-compose ps -q api 2>/dev/null || true)"
+  else
+    API_CONTAINER=""
+  fi
+
+  if [ -z "$API_CONTAINER" ]; then
+    return 1
+  fi
+
+  docker exec -i -e API_URL=http://127.0.0.1:8000 "$API_CONTAINER" python - < scripts/smoke.py
 }
 
-step "Checking health"
-curl -fsS "$BASE_URL/healthz" >/dev/null
-
-step "Checking readiness"
-curl -fsS "$BASE_URL/readyz" >/dev/null
-
-step "Indexing incident evidence"
-post_json "/logs" '{"service":"api","level":"ERROR","message":"database timeout while processing checkout request","trace_id":"smoke-timeout-1"}' >/dev/null
-post_json "/logs" '{"service":"api","level":"ERROR","message":"connection pool exhausted after recent deploy","trace_id":"smoke-timeout-2"}' >/dev/null
-
-INCIDENT='{"service":"api","query":"database timeout and high latency after deploy","mode":"suggest","actor":"smoke-test"}'
-
-step "Analyzing incident"
-ANALYZE_RESPONSE="$(post_json "/incidents/analyze" "$INCIDENT")"
-printf "%s" "$ANALYZE_RESPONSE" | grep -q '"database-timeouts"'
-printf "%s" "$ANALYZE_RESPONSE" | grep -q '"remediation_plan"'
-
-step "Evaluating policy plan"
-PLAN_RESPONSE="$(post_json "/actions/plan" "$INCIDENT")"
-printf "%s" "$PLAN_RESPONSE" | grep -q '"kubectl"'
-printf "%s" "$PLAN_RESPONSE" | grep -q '"rollout"'
-printf "%s" "$PLAN_RESPONSE" | grep -q "requires human approval"
-
-step "Verifying dangerous action is denied"
-DENIED_RESPONSE="$(post_json "/actions/execute" '{"action":"get_secret","target":"api","namespace":"ai-platform","approved":true,"dry_run":true,"actor":"smoke-test","reason":"verify secret access is denied"}')"
-printf "%s" "$DENIED_RESPONSE" | grep -q '"allowed":false'
-printf "%s" "$DENIED_RESPONSE" | grep -q "explicitly denied"
-
-step "Checking audit trail"
-AUDIT_RESPONSE="$(curl -fsS "$BASE_URL/audit/events?limit=10")"
-printf "%s" "$AUDIT_RESPONSE" | grep -q '"decision":"denied"'
-printf "%s" "$AUDIT_RESPONSE" | grep -q '"incident.analyze"'
-
-printf "\nSmoke test passed for %s\n" "$BASE_URL"
+if can_reach_api; then
+  API_URL="$BASE_URL" "$PYTHON_BIN" scripts/smoke.py
+elif docker_fallback; then
+  exit 0
+else
+  echo "Smoke test could not reach $BASE_URL."
+  echo "Start the stack with 'make compose-up' or reset stale local state with 'make compose-reset'."
+  exit 1
+fi

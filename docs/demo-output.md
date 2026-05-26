@@ -33,7 +33,7 @@ The smoke script validates the interview-critical path:
 - `/healthz` and `/readyz` respond successfully.
 - incident logs are indexed;
 - `/incidents/analyze` returns the `database-timeouts` runbook citation;
-- `/actions/plan` returns a read-only rollout check and blocks scaling until approval;
+- `/actions/plan` returns a read-only rollout check and blocks unsafe state-changing actions unless policy target and approval requirements match;
 - `/actions/execute` denies `get_secret` even when `approved=true`;
 - `/audit/events` records both generated and denied decisions.
 
@@ -43,4 +43,12 @@ Useful manual calls:
 curl -fsS http://localhost:8000/healthz
 curl -fsS http://localhost:8000/readyz
 curl -fsS http://localhost:8000/audit/events?limit=10
+```
+
+If a previous demo left stale local volumes, reset the stack before rerunning:
+
+```bash
+make compose-reset
+make compose-up
+make smoke
 ```
